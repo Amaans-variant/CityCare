@@ -361,7 +361,7 @@ async function createDefaultDepartments() {
       {
         name: 'Public Works Department (PWD)',
         description: 'Handles road maintenance, potholes, and infrastructure',
-        categories: ['pothole', 'sidewalk', 'roads']
+        categories: ['pothole', 'sidewalk']
       },
       {
         name: 'Sanitation Department',
