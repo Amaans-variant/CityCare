@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">Complaint Management System</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="reportBtn" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md transition-colors">
+                        File Complaint
+                    </button>
+                    <button id="allComplaintsBtn" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md transition-colors">
+                        All Complaints
+                    </button>
+                    <button id="myComplaintsBtn" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md transition-colors hidden">
+                        My Complaints
+                    </button>
+                    <button id="mapBtn" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md transition-colors">
+                        View Map
+                    </button>
+                    <button id="loginBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition-colors">
+                        Login
+                    </button>
+                    <button id="registerBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md transition-colors">
+                        Register
+                    </button>
+                    <button id="adminBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition-colors">
+                        Admin
+                    </button>
+                    <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md transition-colors hidden">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Welcome Section -->
+        <div id="welcomeSection" class="mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Complaint Management System</h2>
+                <p class="text-gray-600 mb-6">
+                    Report municipal issues like potholes, garbage, streetlights, or other problems. 
+                    Track the progress of your complaints and help improve your city.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">File Complaints</h3>
+                        <p class="text-gray-600">Report issues with photos and detailed descriptions</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">Track Progress</h3>
+                        <p class="text-gray-600">Monitor your complaints from submission to resolution</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">View Map</h3>
+                        <p class="text-gray-600">See all reported issues on an interactive city map</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaint Form Section -->
+        <div id="complaintSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">File a New Complaint</h2>
+                <form id="complaintForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Complaint Title *</label>
+                            <input type="text" id="title" name="title" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="e.g., Large pothole on Main Street">
+                        </div>
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                            <select id="category" name="category" required 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select a category</option>
+                                <option value="pothole">Pothole</option>
+                                <option value="garbage">Garbage</option>
+                                <option value="streetlight">Streetlight</option>
+                                <option value="traffic">Traffic Signal</option>
+                                <option value="sidewalk">Sidewalk</option>
+                                <option value="drainage">Drainage</option>
+                                <option value="electricity">Electricity</option>
+                                <option value="water">Water</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                        <textarea id="description" name="description" required rows="4"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Please provide a detailed description of the issue..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="citizen_name" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                            <input type="text" id="citizen_name" name="citizen_name"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Optional">
+                        </div>
+                        <div>
+                            <label for="citizen_email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="citizen_email" name="citizen_email"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Optional">
+                        </div>
+                        <div>
+                            <label for="citizen_phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" id="citizen_phone" name="citizen_phone"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="isAnonymous" name="isAnonymous" class="mr-2">
+                            <span class="text-sm text-gray-700">Submit as anonymous complaint</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Photo (Optional)</label>
+                        <input type="file" id="image" name="image" accept="image/*"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-sm text-gray-500 mt-1">Upload a photo to help describe the issue</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                        <div class="flex space-x-4">
+                            <button type="button" id="getLocationBtn" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                Use Current Location
+                            </button>
+                            <span id="locationStatus" class="text-sm text-gray-500 self-center">Location not set</span>
+                        </div>
+                        <div class="mt-2">
+                            <input type="text" id="address" name="address" readonly
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                                   placeholder="Address will be displayed here">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="cancelComplaintBtn" 
+                                class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Submit Complaint
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- All Complaints Section -->
+        <div id="allComplaintsSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">All Complaints</h2>
+                <div id="allComplaintsList" class="space-y-4">
+                    <!-- Complaints will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- My Complaints Section -->
+        <div id="myComplaintsSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">My Complaints</h2>
+                <div id="myComplaintsList" class="space-y-4">
+                    <!-- User's complaints will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div id="mapSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Complaints Map</h2>
+                <div id="map" class="h-96 rounded-lg border border-gray-300"></div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Login</h2>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700 mb-2">Username or Email</label>
+                        <input type="text" id="loginUsername" name="username" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Enter username or email">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" name="password" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        Login
+                    </button>
+                </form>
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">Don't have an account? <button id="showRegisterBtn" class="text-blue-600 hover:underline">Register here</button></p>
+                </div>
+                <div class="mt-2 text-center">
+                    <p class="text-xs text-gray-500">Admin login: admin / admin123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Section -->
+        <div id="registerSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Create Account</h2>
+                <form id="registerForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="regUsername" class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+                            <input type="text" id="regUsername" name="username" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="regEmail" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                            <input type="email" id="regEmail" name="email" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="regFirstName" class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                            <input type="text" id="regFirstName" name="firstName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="regLastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                            <input type="text" id="regLastName" name="lastName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="regPassword" class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+                        <input type="password" id="regPassword" name="password" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="regPhone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="regPhone" name="phone"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Address Information (Optional)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="regStreet" class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                                <input type="text" id="regStreet" name="street"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="regCity" class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                <input type="text" id="regCity" name="city"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="regState" class="block text-sm font-medium text-gray-700 mb-2">State</label>
+                                <input type="text" id="regState" name="state"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="regZipCode" class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                                <input type="text" id="regZipCode" name="zipCode"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        Create Account
+                    </button>
+                </form>
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">Already have an account? <button id="showLoginBtn" class="text-blue-600 hover:underline">Login here</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Section -->
+        <div id="adminSection" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Admin Login</h2>
+                <form id="adminLoginForm" class="space-y-4">
+                    <div>
+                        <label for="adminUsername" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" id="adminUsername" name="username" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="adminPassword" name="password" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        Login
+                    </button>
+                </form>
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">Default credentials: admin / admin123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <div class="mb-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+                    <button id="adminLogoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Complaints</p>
+                            <p id="totalComplaints" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pending</p>
+                            <p id="pendingComplaints" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-orange-100 rounded-lg">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">In Progress</p>
+                            <p id="inProgressComplaints" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Resolved</p>
+                            <p id="resolvedComplaints" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaints Table -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Complaints</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Complaints will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Complaint Details -->
+    <div id="complaintModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Complaint Details</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modalContent">
+                    <!-- Content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
